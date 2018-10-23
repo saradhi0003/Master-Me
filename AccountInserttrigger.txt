@@ -39,7 +39,7 @@ trigger AccountAfterInsert on Account (after insert) {
                     insert lstClientAgencyProd; 
                     executionFlowUtility.isInsertClientAgencyReln = true;                     
                  }
-             }catch(Exception ex){
+             }catch(Exception ex){ // to handle exception 
                 system.debug('Error:'+ex.getMessage());
              }
         }
