@@ -1,0 +1,46 @@
+trigger AccountAfterInsert on Account (after insert) {
+    
+    if(!executionFlowUtility.isInsertClientAgencyReln){
+        List<ClientAgencyProduct__c> lstClientAgencyProd = new List<ClientAgencyProduct__c>();
+        List<Account> lstAcct = new List<Account>();
+        
+        /* Commenting below lines to remove hardcoded ids.
+        String ClientId = '012700000009a5UAAQ';
+        String WOClientId = '012700000005kQyAAI';*/
+                
+        //Accessing the recordtype names from custom labels to avoid hardcoding
+        String lmClient=System.Label.LM_Client_Record_Type;        
+        String lmWOClient=System.Label.LM_WO_Client_Record_Type;
+        
+        //Getting the recordtyppe ID based on the name
+        String ClientId = Schema.SObjectType.Account.getRecordTypeInfosByName().get(lmClient).getRecordTypeId();
+        String WOClientId =Schema.SObjectType.Account.getRecordTypeInfosByName().get(lmWOClient).getRecordTypeId();
+                      
+        for(Account acct: Trigger.new){
+            if (acct.RecordTypeId == ClientId || acct.RecordTypeId == WOClientId){
+                lstAcct.add(acct);  
+            }   
+        }
+        
+        if(lstAcct.size() > 0){
+         try{
+                list<Account> unassignedAgency=new list<Account>();
+                unassignedAgency=[Select Id from Account where Name = 'Unassigned Agency' and RecordType.Name = 'LM Agency1' limit 1];
+               
+                if(unassignedAgency.size()>0){  
+                    Id unassignedAgencyId =unassignedAgency[0].id; 
+                    
+                    for(Account acct: lstAcct){         
+                        lstClientAgencyProd.add(new ClientAgencyProduct__c(ClientId__c = acct.Id,AgencyId__c = unassignedAgencyId));            
+                    }
+                    
+                    executionFlowUtility.isInsertClientAgencyReln = false;   
+                    insert lstClientAgencyProd; 
+                    executionFlowUtility.isInsertClientAgencyReln = true;                     
+                 }
+             }catch(Exception ex){
+                system.debug('Error:'+ex.getMessage());
+             }
+        }
+    }
+}
