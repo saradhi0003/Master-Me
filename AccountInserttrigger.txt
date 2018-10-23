@@ -3,10 +3,7 @@ trigger AccountAfterInsert on Account (after insert) {
     if(!executionFlowUtility.isInsertClientAgencyReln){
         List<ClientAgencyProduct__c> lstClientAgencyProd = new List<ClientAgencyProduct__c>();
         List<Account> lstAcct = new List<Account>();
-        
-
-       
-
+      
         /* Commenting below lines to remove hardcoded ids.
 
         String ClientId = '012700000009a5UAAQ';
@@ -16,7 +13,7 @@ trigger AccountAfterInsert on Account (after insert) {
         String lmClient=System.Label.LM_Client_Record_Type;        
         String lmWOClient=System.Label.LM_WO_Client_Record_Type;
         
-        //Getting the recordtyppe ID based on the name
+        //Getting the recordtyppe ID based on the name this is also a best practise from salesforce to avoid mutiple queries
         String ClientId = Schema.SObjectType.Account.getRecordTypeInfosByName().get(lmClient).getRecordTypeId();
         String WOClientId =Schema.SObjectType.Account.getRecordTypeInfosByName().get(lmWOClient).getRecordTypeId();
                       
